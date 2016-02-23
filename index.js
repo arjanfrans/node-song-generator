@@ -68,7 +68,7 @@ function createSong () {
     let chorusA = chorusProgressions[0].map(interval => chords[interval]);
     let chorusB = chorusProgressions[1].map(interval => chords[interval]);
 
-    let preChorusProgression = createPreChorus(verseProgression, chorusProgressions[0]);
+    let preChorusProgression = createPreChorus(verseProgression, chorusProgressions[0], chorusA);
 
     let preChorusA = preChorusProgression[0].map(interval => chords[interval]);
     let preChorusB = preChorusProgression[1].map(interval => chords[interval]);
@@ -76,11 +76,11 @@ function createSong () {
     printSong([verse, verse, [], preChorusA, preChorusB, [], chorusA, chorusB]);
 }
 
-function createPreChorus(verse, chorus) {
+function createPreChorus(verse, chorusProg, chorus) {
     let notFirstOrLast = [3, verse[0], verse[3]];
 
-    if (chorus) {
-        notFirstOrLast.push(chorus[0]);
+    if (chorusProg) {
+        notFirstOrLast.push(chorusProg[0]);
     }
 
     let progressionA = [];
@@ -97,10 +97,11 @@ function createPreChorus(verse, chorus) {
 
     let notLast = [progressionA[0], progressionA[3], 3, 0];
 
-    if (chorus) {
-        notLast.push(chorus[0]);
+    if (chorusProg) {
+        notLast.push(chorusProg[0]);
     }
 
+    // FIXME do not transition from minor to minor
     progressionB[3] = randomValue(INTERVALS, notLast);
 
     return [progressionA, progressionB];
