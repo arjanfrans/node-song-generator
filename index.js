@@ -63,11 +63,17 @@ function createSong () {
     let verseProgression = shuffleProgression(verses[0], true);
     let verse = verseProgression.map(interval => chords[interval]);
 
-    let preChorusProgression = createPreChorus(verseProgression);
+    let chorusProgressions = createChorus(verse);
 
-    let preChorus = preChorusProgression.map(interval => chords[interval]);
+    let chorusA = chorusProgressions[0].map(interval => chords[interval]);
+    let chorusB = chorusProgressions[1].map(interval => chords[interval]);
 
-    printSong([verse, preChorus]);
+    let preChorusProgression = createPreChorus(verseProgression, chorusProgressions[0]);
+
+    let preChorusA = preChorusProgression[0].map(interval => chords[interval]);
+    let preChorusB = preChorusProgression[1].map(interval => chords[interval]);
+
+    printSong([verse, verse, [], preChorusA, preChorusB, [], chorusA, chorusB]);
 }
 
 function createPreChorus(verse, chorus) {
@@ -77,16 +83,64 @@ function createPreChorus(verse, chorus) {
         notFirstOrLast.push(chorus[0]);
     }
 
-    let progression = [];
+    let progressionA = [];
 
     let first = [1, 2, 4, 5, 6];
 
-    progression[0] = randomValue(first, notFirstOrLast);
-    progression[1] = randomValue(INTERVALS);
-    progression[2] = randomValue(INTERVALS, [progression[1]]);
-    progression[3] = randomValue(INTERVALS, notFirstOrLast);
+    progressionA[0] = randomValue(first, notFirstOrLast);
+    progressionA[1] = randomValue(INTERVALS);
+    progressionA[2] = randomValue(INTERVALS, [progressionA[1]]);
+    // Last is never the same as the first
+    progressionA[3] = randomValue(INTERVALS, notFirstOrLast.concat([progressionA[0]]));
 
-    return progression;
+    let progressionB = progressionA.slice();
+
+    let notLast = [progressionA[0], progressionA[3], 3, 0];
+
+    if (chorus) {
+        notLast.push(chorus[0]);
+    }
+
+    progressionB[3] = randomValue(INTERVALS, notLast);
+
+    return [progressionA, progressionB];
+}
+
+function createChorus(verse) {
+    let progressionA = [];
+
+    progressionA[0] = randomValue(INTERVALS, [3]);
+    progressionA[1] = randomValue(INTERVALS, [3]);
+
+    let notNext = [3];
+
+    if (progressionA[0] === progressionA[1]) {
+        notNext.push(progressionA[0]);
+    }
+
+    progressionA[2] = randomValue(INTERVALS, notNext);
+
+    let third = randomValue(INTERVALS, notNext.concat([progressionA[2]]));
+
+    if (arrayOccurances(progressionA)[third] > 1) {
+        progressionA[2] = randomValue(INTERVALS, notNext.concat([progressionA[2], third]));
+    } else {
+        progressionA[2] = third;
+    }
+
+    let fourth = randomValue(INTERVALS, notNext);
+
+    if (arrayOccurances(progressionA)[fourth] > 1) {
+        progressionA[3] = randomValue(INTERVALS, notNext.concat([fourth]));
+    } else {
+        progressionA[3] = fourth;
+    }
+
+    let progressionB = progressionA.slice();
+
+    progressionB[3] = randomValue(INTERVALS, [progressionA[3]]);
+
+    return [progressionA, progressionB];
 }
 
 function printSong(parts) {
