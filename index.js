@@ -8,17 +8,6 @@ const verses = [
 ];
 
 const INTERVALS = [0, 1, 2, 3, 4, 5, 6];
-const preChorusStart = [1, 4, 6];
-
-function randomValue(array, not) {
-    if (not) {
-        let excluded = array.filter(interval => not.indexOf(interval) === -1);
-
-        return excluded[Math.floor(Math.random() * excluded.length)];
-    }
-
-    return array[Math.floor(Math.random() * array.length)];
-}
 
 function shuffleProgression (progression, keyFirst) {
     let uniqueIntervals = uniqueArray(progression);
@@ -56,8 +45,11 @@ function createSong () {
     let scale = teoria.scale('a', 'minor');
     let notes = scale.notes();
 
-    let chords = piu.infer(scale.notes()).map(chord => {
-        return teoria.chord(chord.root + chord.type);
+    let chords = piu.infer(scale.notes()).map((chord, index) => {
+        return {
+            interval: index,
+            chord: teoria.chord(chord.root + chord.type);
+        };
     });
 
     let verseProgression = shuffleProgression(verses[0], true);
@@ -65,13 +57,13 @@ function createSong () {
 
     let chorusProgressions = createChorus(verse);
 
-    let chorusA = chorusProgressions[0].map(interval => chords[interval]);
-    let chorusB = chorusProgressions[1].map(interval => chords[interval]);
+    let chorusA = chorusProgressions[0].map(interval => chords[interval].chord);
+    let chorusB = chorusProgressions[1].map(interval => chords[interval].chord);
 
     let preChorusProgression = createPreChorus(verseProgression, chorusProgressions[0], chorusA);
 
-    let preChorusA = preChorusProgression[0].map(interval => chords[interval]);
-    let preChorusB = preChorusProgression[1].map(interval => chords[interval]);
+    let preChorusA = preChorusProgression[0].map(interval => chords[interval].chord);
+    let preChorusB = preChorusProgression[1].map(interval => chords[interval].chord);
 
     printSong([verse, verse, [], preChorusA, preChorusB, [], chorusA, chorusB]);
 }
@@ -148,32 +140,6 @@ function printSong(parts) {
     let output = parts.map(part => part.map(chord => chord.name).join(' ')).join('\n');
 
     console.log(output)
-}
-
-function uniqueArray(array) {
-    return array.filter((element, index) => {
-        return array.indexOf(element) === index;
-    });
-}
-
-function arrayOccurances(array) {
-    return array.reduce((acc, curr) => {
-        if (typeof acc[curr] === 'undefined') {
-            acc[curr] = 1;
-        } else {
-            acc[curr] += 1;
-        }
-
-        return acc;
-    }, {});
-}
-
-function removeValue(array, value) {
-    let index = array.indexOf(value);
-
-    if (index !== -1) {
-        array.splice(index, 1);
-    }
 }
 
 createSong();
