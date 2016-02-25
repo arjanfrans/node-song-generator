@@ -1,8 +1,8 @@
 {
-  "name": "song-generator-js",
+  "name": "song-generator",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "start": "node example/test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
